@@ -23,7 +23,7 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 .btn{padding:8px 12px;border-radius:8px;border:1px solid #2c2c33;background:none;color:#e8e8ea;font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap}
 .btn:hover{background:#222227}
 .player{margin-top:12px;display:none}
-.player iframe{width:100%;height:80px;border:0;border-radius:8px}
+.player iframe{width:100%;height:180px;border:0;border-radius:8px}
 .msg{color:#8a8a93;padding:20px 0}
 .contact{display:block;text-align:center;margin-top:32px;padding:14px;border-radius:12px;background:#e8e8ea;color:#0e0e10;text-decoration:none;font-weight:600}
 </style>
@@ -50,10 +50,10 @@ genres.forEach(function(g){h+='<a class="tab'+(g==cur?' on':'')+'" href="#'+enco
 document.getElementById('tabs').innerHTML=h;
 var list=tracks.filter(function(t){return !cur||t.g==cur});
 if(!list.length){document.getElementById('list').innerHTML='<p class="msg">아직 등록된 곡이 없습니다.</p>';return}
-document.getElementById('list').innerHTML=list.map(function(t){return '<div class="track"><div class="row"><div class="name">'+esc(t.title)+'<div class="genre">'+esc(t.g.toUpperCase())+'</div></div><button class="btn" data-id="'+t.id+'">재생</button><a class="btn" href="https://drive.google.com/uc?export=download&id='+t.id+'">다운로드</a></div><div class="player"></div></div>'}).join('')}
+document.getElementById('list').innerHTML=list.map(function(t){return '<div class="track"><div class="row"><div class="name">'+esc(t.title)+'<div class="genre">'+esc(t.g.toUpperCase())+'</div></div><button class="btn" data-id="'+t.id+'">play</button><a class="btn" href="https://drive.google.com/uc?export=download&id='+t.id+'">download</a></div><div class="player"></div></div>'}).join('')}
 document.addEventListener('click',function(e){var b=e.target.closest('button[data-id]');if(!b)return;var p=b.closest('.track').querySelector('.player');
-if(p.style.display=='block'){p.style.display='none';p.innerHTML='';b.textContent='재생';return}
-p.innerHTML='<iframe src="https://drive.google.com/file/d/'+b.dataset.id+'/preview" allow="autoplay"></iframe>';p.style.display='block';b.textContent='닫기'});
+if(p.style.display=='block'){p.style.display='none';p.innerHTML='';b.textContent='play';return}
+p.innerHTML='<iframe src="https://drive.google.com/file/d/'+b.dataset.id+'/preview" allow="autoplay"></iframe>';p.style.display='block';b.textContent='close'});
 window.addEventListener('hashchange',render);
 fetch(SHEET+'&t='+Date.now()).then(function(r){return r.text()}).then(function(txt){
 var rows=parseCSV(txt.replace(/^﻿/,''));var head=rows.shift().map(function(s){return s.trim()});

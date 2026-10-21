@@ -57,6 +57,7 @@ body.open .menu{max-height:200px;opacity:1;margin-top:8px}
   <nav class="menu" id="menu" aria-label="메뉴">
     <a href="artists.html" tabindex="-1">ARTISTS</a>
     <a href="songs.html" tabindex="-1">DEMO</a>
+    <a href="release.html" tabindex="-1">NEW RELEASE</a>
   </nav>
 </div>
 
@@ -89,16 +90,21 @@ body.open .menu{max-height:200px;opacity:1;margin-top:8px}
       if(after)after(t);
     }).catch(function(){});
   }
-  save('wtw_songs','0');
-  save('wtw_artists','660942977',function(t){
+  // 사진·커버 칸의 구글 드라이브 이미지를 미리 받아둠
+  function preload(t,col){
     var lines=t.replace(/^﻿/,'').split('\n');
     var head=lines[0].split(',').map(function(x){return x.trim()});
-    var pi=head.indexOf('사진'); if(pi<0) return;
+    var pi=head.indexOf(col); if(pi<0) return;
+    var sz=col==='커버'?'w400':'w320';
     lines.slice(1).forEach(function(l){
       var m=(l.split(',')[pi]||'').match(/drive\.google\.com\/.*(?:\/d\/|[?&]id=)([\w-]+)/);
-      if(m) new Image().src='https://drive.google.com/thumbnail?id='+m[1]+'&sz=w320';
+      if(m) new Image().src='https://drive.google.com/thumbnail?id='+m[1]+'&sz='+sz;
     });
-  });
+  }
+  var RELEASE_GID='640589778'; // 구글 시트 release 탭 번호
+  save('wtw_songs','0');
+  save('wtw_artists','660942977',function(t){preload(t,'사진')});
+  if(RELEASE_GID) save('wtw_release',RELEASE_GID,function(t){preload(t,'커버')});
 })();
 </script>
 </body>

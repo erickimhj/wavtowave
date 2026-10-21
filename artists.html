@@ -71,6 +71,17 @@ function card(a,isHead){
   var body='<div class="name">'+esc(a.name)+'</div>'+btn+mail;
   return '<div class="card">'+img+(isHead?'<div class="info">'+body+'</div>':body)+'</div>';
 }
+// 가장 긴 메일 주소가 한 줄에 들어가는 만큼만 카드 최소 너비를 늘림 (화면보다 넓어지지는 않음)
+function fitCards(){
+  var grid=document.getElementById('list'),w=0;
+  var probe=document.createElement('span');
+  probe.className='mail';probe.style.cssText='position:absolute;visibility:hidden;white-space:nowrap';
+  document.body.appendChild(probe);
+  grid.querySelectorAll('.mail').forEach(function(m){probe.textContent=m.textContent;w=Math.max(w,probe.getBoundingClientRect().width)});
+  probe.remove();
+  var min=Math.min(Math.max(180,Math.ceil(w)+36),grid.clientWidth);
+  grid.style.gridTemplateColumns='repeat(auto-fill,minmax('+min+'px,1fr))';
+}
 function show(html){document.getElementById('list').innerHTML=html}
 
 if(!ARTIST_SHEET){
@@ -94,6 +105,8 @@ if(!ARTIST_SHEET){
     }
     show(artists.length?artists.map(function(a){return card(a,false)}).join('')
                        :'<p class="msg">아직 등록된 아티스트가 없습니다.</p>');
+    fitCards();
+    window.addEventListener('resize',fitCards);
   }).catch(function(){show('<p class="msg">아티스트 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>')});
 }
 </script>

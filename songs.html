@@ -13,7 +13,9 @@ body{margin:0;background:#0e0e10;color:#e8e8ea;font-family:-apple-system,BlinkMa
 .wrap{max-width:640px;margin:0 auto;padding:48px 16px 64px}
 h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40px;letter-spacing:-0.01em;line-height:1;color:#D8D2C4;margin:0 0 10px;filter:url(#thin)}
 .sub{color:#8a8a93;margin:0 0 28px}
-.tabs{display:flex;flex-wrap:wrap;gap:8px;margin-bottom:24px}
+.tabs{display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.tabrow{display:flex;flex-wrap:wrap;align-items:center;gap:8px}
+.tablabel{font-size:11px;letter-spacing:.14em;color:#8a8a93;font-weight:600;width:56px}
 .tab{padding:8px 14px;border:1px solid #2c2c33;border-radius:999px;color:#b5b5bd;text-decoration:none;font-size:14px}
 .tab.on{background:#e8e8ea;color:#0e0e10;border-color:#e8e8ea}
 .track{border:1px solid #232329;border-radius:12px;padding:14px 16px;margin-bottom:10px;background:#151518}
@@ -44,17 +46,23 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 </div>
 <script>
 var SHEET='https://docs.google.com/spreadsheets/d/e/2PACX-1vRjPezBbHYtf8v2DaQJN0IDbRAXX_GpPsnjsetFzSvAz0JPGmaJVq_qfTdZ7HqMKKt8_CE3jO_uK_EK/pub?gid=0&single=true&output=csv';
-var tracks=[],genres=[];
+var tracks=[],genres=[],artists=[];
 function parseCSV(t){var rows=[],row=[],f='',q=false;for(var i=0;i<t.length;i++){var c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'){row.push(f);rows.push(row);row=[];f=''}else if(c!='\r')f+=c}if(f||row.length){row.push(f);rows.push(row)}return rows}
 function fileId(u){var m=u.match(/\/d\/([\w-]+)/)||u.match(/[?&]id=([\w-]+)/);return m?m[1]:null}
 function esc(s){return s.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+function names(t){return t.artist?t.artist.split(',').map(function(x){return x.trim()}).filter(Boolean):[]}
+function state(){var p={};location.hash.slice(1).split('&').forEach(function(kv){var i=kv.indexOf('=');if(i>0)p[kv.slice(0,i)]=decodeURIComponent(kv.slice(i+1))});
+var g=(p.g||'').toLowerCase(),a=p.a||'';if(genres.indexOf(g)<0)g='';if(artists.indexOf(a)<0)a='';return{g:g,a:a}}
+function link(g,a){var q=[];if(g)q.push('g='+encodeURIComponent(g));if(a)q.push('a='+encodeURIComponent(a));return '#'+q.join('&')}
+function tabRow(label,items,cur,mk,show){var h='<div class="tabrow"><span class="tablabel">'+label+'</span><a class="tab'+(cur?'':' on')+'" href="'+mk('')+'">ALL</a>';
+items.forEach(function(x){h+='<a class="tab'+(x==cur?' on':'')+'" href="'+mk(x)+'">'+esc(show(x))+'</a>'});return h+'</div>'}
 function render(){
-var cur=decodeURIComponent(location.hash.slice(1)).toLowerCase();if(genres.indexOf(cur)<0)cur='';
-var h='<a class="tab'+(cur?'':' on')+'" href="#">전체</a>';
-genres.forEach(function(g){h+='<a class="tab'+(g==cur?' on':'')+'" href="#'+encodeURIComponent(g)+'">'+esc(g.toUpperCase())+'</a>'});
+var st=state();
+var h=tabRow('GENRE',genres,st.g,function(x){return link(x,st.a)},function(x){return x.toUpperCase()});
+if(artists.length)h+=tabRow('ARTIST',artists,st.a,function(x){return link(st.g,x)},function(x){return x});
 document.getElementById('tabs').innerHTML=h;
-var list=tracks.filter(function(t){return !cur||t.g==cur});
-if(!list.length){document.getElementById('list').innerHTML='<p class="msg">아직 등록된 곡이 없습니다.</p>';return}
+var list=tracks.filter(function(t){return (!st.g||t.g==st.g)&&(!st.a||names(t).indexOf(st.a)>=0)});
+if(!list.length){document.getElementById('list').innerHTML='<p class="msg">'+(tracks.length?'조건에 맞는 곡이 없습니다.':'아직 등록된 곡이 없습니다.')+'</p>';return}
 document.getElementById('list').innerHTML=list.map(function(t){return '<div class="track"><div class="row"><div class="name">'+esc(t.title)+(t.artist?'<div class="artist">'+esc(t.artist)+'</div>':'')+'<div class="genre">'+esc(t.g.toUpperCase())+'</div></div><button class="btn" data-id="'+t.id+'">play</button><a class="btn" href="https://drive.google.com/uc?export=download&id='+t.id+'">download</a></div><div class="player"></div></div>'}).join('')}
 document.addEventListener('click',function(e){var b=e.target.closest('button[data-id]');if(!b)return;var p=b.closest('.track').querySelector('.player');
 if(p.style.display=='block'){p.style.display='none';p.innerHTML='';b.textContent='play';return}
@@ -64,7 +72,7 @@ fetch(SHEET+'&t='+Date.now()).then(function(r){return r.text()}).then(function(t
 var rows=parseCSV(txt.replace(/^﻿/,''));var head=rows.shift().map(function(s){return s.trim()});
 var gi=head.indexOf('장르'),ti=head.indexOf('제목'),li=head.indexOf('링크'),ai=head.indexOf('아티스트');
 rows.forEach(function(r){var id=fileId(r[li]||'');var title=(r[ti]||'').trim();var g=((r[gi]||'').trim()||'기타').toLowerCase();
-if(!id||!title)return;tracks.push({g:g,title:title,id:id,artist:ai<0?'':(r[ai]||'').trim()});if(genres.indexOf(g)<0)genres.push(g)});
+if(!id||!title)return;tracks.push({g:g,title:title,id:id,artist:ai<0?'':(r[ai]||'').trim()});if(genres.indexOf(g)<0)genres.push(g);names(tracks[tracks.length-1]).forEach(function(n){if(artists.indexOf(n)<0)artists.push(n)})});
 render()}).catch(function(){document.getElementById('list').innerHTML='<p class="msg">곡 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>'});
 </script>
 </body>

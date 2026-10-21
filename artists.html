@@ -66,7 +66,7 @@ function esc(s){return s.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'
 function photoUrl(u){
   u=(u||'').trim(); if(!u) return '';
   var m=u.match(/drive\.google\.com\/.*(?:\/d\/|[?&]id=)([\w-]+)/);
-  return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w600':u;
+  return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w320':u;
 }
 function card(a,isHead){
   var demo='songs.html#a='+encodeURIComponent(a.name);
@@ -91,10 +91,15 @@ function fitCards(){
 }
 function show(html){document.getElementById('list').innerHTML=html}
 
+// 지난번에 받아둔 목록을 먼저 바로 보여주고, 그사이 최신 목록을 받아와 바뀐 게 있으면 교체
+function cached(key,url,load,fail){var c=null;try{c=localStorage.getItem(key)}catch(e){}
+if(c){try{load(c)}catch(e){c=null}}
+fetch(url+(url.indexOf('?')<0?'?':'&')+'t='+Date.now()).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){
+if(t!==c){try{localStorage.setItem(key,t)}catch(e){}load(t)}}).catch(function(){if(!c)fail()})}
 if(!ARTIST_SHEET){
   show('<p class="msg">아티스트 목록을 준비 중입니다.</p>');
 }else{
-  fetch(ARTIST_SHEET+(ARTIST_SHEET.indexOf('?')<0?'?':'&')+'t='+Date.now()).then(function(r){return r.text()}).then(function(txt){
+  cached('wtw_artists',ARTIST_SHEET,function(txt){
     var rows=parseCSV(txt.replace(/^﻿/,''));
     var head=rows.shift().map(function(s){return s.trim()});
     var ni=head.indexOf('이름'),pi=head.indexOf('사진'),si=head.indexOf('스포티파이'),ki=head.indexOf('구분'),mi=head.indexOf('메일');
@@ -105,16 +110,14 @@ if(!ARTIST_SHEET){
       var kind=ki<0?'':(r[ki]||'').replace(/\s/g,'').toLowerCase();
       (kind==='headproducer'?heads:artists).push(a);
     });
-    if(heads.length){
-      document.getElementById('head').innerHTML=heads.map(function(a){return card(a,true)}).join('');
-      document.getElementById('headSec').hidden=false;
-      document.getElementById('artistLabel').hidden=false;
-    }
+    document.getElementById('head').innerHTML=heads.map(function(a){return card(a,true)}).join('');
+    document.getElementById('headSec').hidden=!heads.length;
+    document.getElementById('artistLabel').hidden=!heads.length;
     show(artists.length?artists.map(function(a){return card(a,false)}).join('')
                        :'<p class="msg">아직 등록된 아티스트가 없습니다.</p>');
     fitCards();
-    window.addEventListener('resize',fitCards);
-  }).catch(function(){show('<p class="msg">아티스트 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>')});
+  },function(){show('<p class="msg">아티스트 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>')});
+  window.addEventListener('resize',fitCards);
 }
 </script>
 </body>

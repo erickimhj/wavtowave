@@ -67,12 +67,19 @@ document.addEventListener('click',function(e){var b=e.target.closest('button[dat
 if(p.style.display=='block'){p.style.display='none';p.innerHTML='';b.textContent='play';return}
 p.innerHTML='<iframe src="https://drive.google.com/file/d/'+b.dataset.id+'/preview" allow="autoplay"></iframe>';p.style.display='block';b.textContent='close'});
 window.addEventListener('hashchange',render);
-fetch(SHEET+'&t='+Date.now()).then(function(r){return r.text()}).then(function(txt){
+// 지난번에 받아둔 목록을 먼저 바로 보여주고, 그사이 최신 목록을 받아와 바뀐 게 있으면 교체
+function cached(key,url,load,fail){var c=null;try{c=localStorage.getItem(key)}catch(e){}
+if(c){try{load(c)}catch(e){c=null}}
+fetch(url+(url.indexOf('?')<0?'?':'&')+'t='+Date.now()).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){
+if(t!==c){try{localStorage.setItem(key,t)}catch(e){}load(t)}}).catch(function(){if(!c)fail()})}
+cached('wtw_songs',SHEET,function(txt){
+tracks=[];genres=[];artists=[];
+
 var rows=parseCSV(txt.replace(/^﻿/,''));var head=rows.shift().map(function(s){return s.trim()});
 var gi=head.indexOf('장르'),ti=head.indexOf('제목'),li=head.indexOf('링크'),ai=head.indexOf('아티스트');
 rows.forEach(function(r){var id=fileId(r[li]||'');var title=(r[ti]||'').trim();var g=((r[gi]||'').trim()||'기타').toLowerCase();
 if(!id||!title)return;tracks.push({g:g,title:title,id:id,artist:ai<0?'':(r[ai]||'').trim()});if(genres.indexOf(g)<0)genres.push(g);names(tracks[tracks.length-1]).forEach(function(n){if(artists.indexOf(n)<0)artists.push(n)})});
-render()}).catch(function(){document.getElementById('list').innerHTML='<p class="msg">곡 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>'});
+render()},function(){document.getElementById('list').innerHTML='<p class="msg">곡 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>'});
 </script>
 </body>
 </html>

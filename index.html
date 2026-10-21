@@ -79,6 +79,27 @@ body.open .menu{max-height:200px;opacity:1;margin-top:8px}
     links.forEach(function(a){a.tabIndex=open?0:-1});
   });
 })();
+
+// 첫 화면을 보는 동안 곡 목록·아티스트 목록·프로필 사진을 미리 받아둠 (다음 페이지가 바로 뜨도록)
+(function(){
+  var BASE='https://docs.google.com/spreadsheets/d/e/2PACX-1vRjPezBbHYtf8v2DaQJN0IDbRAXX_GpPsnjsetFzSvAz0JPGmaJVq_qfTdZ7HqMKKt8_CE3jO_uK_EK/pub?single=true&output=csv&gid=';
+  function save(key,gid,after){
+    fetch(BASE+gid+'&t='+Date.now()).then(function(r){if(!r.ok)throw 0;return r.text()}).then(function(t){
+      try{localStorage.setItem(key,t)}catch(e){}
+      if(after)after(t);
+    }).catch(function(){});
+  }
+  save('wtw_songs','0');
+  save('wtw_artists','660942977',function(t){
+    var lines=t.replace(/^﻿/,'').split('\n');
+    var head=lines[0].split(',').map(function(x){return x.trim()});
+    var pi=head.indexOf('사진'); if(pi<0) return;
+    lines.slice(1).forEach(function(l){
+      var m=(l.split(',')[pi]||'').match(/drive\.google\.com\/.*(?:\/d\/|[?&]id=)([\w-]+)/);
+      if(m) new Image().src='https://drive.google.com/thumbnail?id='+m[1]+'&sz=w320';
+    });
+  });
+})();
 </script>
 </body>
 </html>

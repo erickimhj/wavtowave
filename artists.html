@@ -59,7 +59,7 @@ function card(a,isHead){
   var img=a.pic?'<img class="photo" src="'+esc(a.pic)+'" alt="'+esc(a.name)+'" loading="lazy">'
                :'<div class="photo" aria-hidden="true">'+esc(a.name.charAt(0).toUpperCase())+'</div>';
   var btn=/^https:\/\/open\.spotify\.com\//.test(a.sp)
-    ?'<a class="btn" href="'+esc(a.sp)+'" target="_blank" rel="noopener">Spotify에서 듣기</a>':'';
+    ?'<a class="btn" href="'+esc(a.sp)+'" target="_blank" rel="noopener">spotify</a>':'';
   var body='<div class="name">'+esc(a.name)+'</div>'+btn;
   return '<div class="card">'+img+(isHead?'<div class="info">'+body+'</div>':body)+'</div>';
 }

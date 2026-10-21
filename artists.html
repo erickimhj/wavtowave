@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wav to wave - Artists</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0e0e10;color:#e8e8ea;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:48px 16px 64px}
+h1{font-size:30px;margin:0 0 6px;letter-spacing:-0.5px}
+.sub{color:#8a8a93;margin:0 0 28px}
+.label{font-size:12px;letter-spacing:.18em;color:#8a8a93;margin:0 0 14px;font-weight:600}
+.section{margin-bottom:40px}
+.grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px}
+.card{border:1px solid #232329;border-radius:12px;padding:22px 16px 18px;background:#151518;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
+.photo{width:120px;height:120px;border-radius:50%;object-fit:cover;background:#222227;display:flex;align-items:center;justify-content:center;font-size:40px;color:#8a8a93;flex-shrink:0}
+.name{font-weight:600;font-size:16px;word-break:break-all}
+.head .card{flex-direction:row;flex-wrap:wrap;justify-content:center;text-align:left;gap:24px;padding:28px 24px}
+.head .photo{width:160px;height:160px;font-size:56px}
+.head .info{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0}
+.head .name{font-size:24px}
+@media (max-width:520px){.head .card{text-align:center}.head .info{align-items:center}}
+.btn{padding:9px 16px;border-radius:999px;border:1px solid #2c2c33;color:#e8e8ea;font-size:13px;text-decoration:none;white-space:nowrap}
+.btn:hover{background:#222227}
+.msg{color:#8a8a93;padding:20px 0}
+</style>
+</head>
+<body>
+<div class="wrap">
+<h1>wav to wave</h1>
+<p class="sub">Artists</p>
+<section class="section head" id="headSec" hidden>
+  <p class="label">HEAD PRODUCER</p>
+  <div id="head"></div>
+</section>
+<section class="section" id="artistSec">
+  <p class="label" id="artistLabel" hidden>ARTISTS</p>
+  <div class="grid" id="list"><p class="msg">불러오는 중...</p></div>
+</section>
+</div>
+<script>
+// 구글 시트를 "웹에 게시(CSV)"한 링크를 따옴표 안에 넣으면 됩니다.
+var ARTIST_SHEET='https://docs.google.com/spreadsheets/d/e/2PACX-1vRjPezBbHYtf8v2DaQJN0IDbRAXX_GpPsnjsetFzSvAz0JPGmaJVq_qfTdZ7HqMKKt8_CE3jO_uK_EK/pub?gid=660942977&single=true&output=csv';
+
+function parseCSV(t){var rows=[],row=[],f='',q=false;for(var i=0;i<t.length;i++){var c=t[i];if(q){if(c=='"'){if(t[i+1]=='"'){f+='"';i++}else q=false}else f+=c}else if(c=='"')q=true;else if(c==','){row.push(f);f=''}else if(c=='\n'){row.push(f);rows.push(row);row=[];f=''}else if(c!='\r')f+=c}if(f||row.length){row.push(f);rows.push(row)}return rows}
+function esc(s){return s.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]})}
+// 구글 드라이브 링크면 이미지로 보이는 주소로 바꾸고, 아니면 그대로 사용
+function photoUrl(u){
+  u=(u||'').trim(); if(!u) return '';
+  var m=u.match(/drive\.google\.com\/.*(?:\/d\/|[?&]id=)([\w-]+)/);
+  return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w600':u;
+}
+function card(a,isHead){
+  var img=a.pic?'<img class="photo" src="'+esc(a.pic)+'" alt="'+esc(a.name)+'" loading="lazy">'
+               :'<div class="photo" aria-hidden="true">'+esc(a.name.charAt(0).toUpperCase())+'</div>';
+  var btn=/^https:\/\/open\.spotify\.com\//.test(a.sp)
+    ?'<a class="btn" href="'+esc(a.sp)+'" target="_blank" rel="noopener">Spotify에서 듣기</a>':'';
+  var body='<div class="name">'+esc(a.name)+'</div>'+btn;
+  return '<div class="card">'+img+(isHead?'<div class="info">'+body+'</div>':body)+'</div>';
+}
+function show(html){document.getElementById('list').innerHTML=html}
+
+if(!ARTIST_SHEET){
+  show('<p class="msg">아티스트 목록을 준비 중입니다.</p>');
+}else{
+  fetch(ARTIST_SHEET+(ARTIST_SHEET.indexOf('?')<0?'?':'&')+'t='+Date.now()).then(function(r){return r.text()}).then(function(txt){
+    var rows=parseCSV(txt.replace(/^﻿/,''));
+    var head=rows.shift().map(function(s){return s.trim()});
+    var ni=head.indexOf('이름'),pi=head.indexOf('사진'),si=head.indexOf('스포티파이'),ki=head.indexOf('구분');
+    var heads=[],artists=[];
+    rows.forEach(function(r){
+      var name=(r[ni]||'').trim(); if(!name) return;
+      var a={name:name,pic:photoUrl(r[pi]),sp:(r[si]||'').trim()};
+      var kind=ki<0?'':(r[ki]||'').replace(/\s/g,'').toLowerCase();
+      (kind==='headproducer'?heads:artists).push(a);
+    });
+    if(heads.length){
+      document.getElementById('head').innerHTML=heads.map(function(a){return card(a,true)}).join('');
+      document.getElementById('headSec').hidden=false;
+      document.getElementById('artistLabel').hidden=false;
+    }
+    show(artists.length?artists.map(function(a){return card(a,false)}).join('')
+                       :'<p class="msg">아직 등록된 아티스트가 없습니다.</p>');
+  }).catch(function(){show('<p class="msg">아티스트 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>')});
+}
+</script>
+</body>
+</html>

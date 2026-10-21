@@ -19,6 +19,8 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 .card{border:1px solid #232329;border-radius:12px;padding:22px 16px 18px;background:#151518;display:flex;flex-direction:column;align-items:center;text-align:center;gap:14px}
 .photo{width:120px;height:120px;border-radius:50%;object-fit:cover;background:#222227;display:flex;align-items:center;justify-content:center;font-size:40px;color:#8a8a93;flex-shrink:0}
 .name{font-weight:600;font-size:16px;word-break:break-all}
+.mail{font-size:12px;color:#8a8a93;text-decoration:none;word-break:break-all}
+.mail:hover{color:#e8e8ea;text-decoration:underline}
 .head .card{flex-direction:row;flex-wrap:wrap;justify-content:center;text-align:left;gap:24px;padding:28px 24px}
 .head .photo{width:160px;height:160px;font-size:56px}
 .head .info{display:flex;flex-direction:column;align-items:flex-start;gap:14px;min-width:0}
@@ -65,7 +67,8 @@ function card(a,isHead){
                :'<div class="photo" aria-hidden="true">'+esc(a.name.charAt(0).toUpperCase())+'</div>';
   var btn=/^https:\/\/open\.spotify\.com\//.test(a.sp)
     ?'<a class="sp" href="'+esc(a.sp)+'" target="_blank" rel="noopener" aria-label="'+esc(a.name)+' Spotify"><img src="spotify.png" alt="Spotify" onerror="this.replaceWith(document.createTextNode(\'spotify\'))"></a>':'';
-  var body='<div class="name">'+esc(a.name)+'</div>'+btn;
+  var mail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.mail)?'<a class="mail" href="mailto:'+esc(a.mail)+'">'+esc(a.mail)+'</a>':'';
+  var body='<div class="name">'+esc(a.name)+'</div>'+btn+mail;
   return '<div class="card">'+img+(isHead?'<div class="info">'+body+'</div>':body)+'</div>';
 }
 function show(html){document.getElementById('list').innerHTML=html}
@@ -76,11 +79,11 @@ if(!ARTIST_SHEET){
   fetch(ARTIST_SHEET+(ARTIST_SHEET.indexOf('?')<0?'?':'&')+'t='+Date.now()).then(function(r){return r.text()}).then(function(txt){
     var rows=parseCSV(txt.replace(/^﻿/,''));
     var head=rows.shift().map(function(s){return s.trim()});
-    var ni=head.indexOf('이름'),pi=head.indexOf('사진'),si=head.indexOf('스포티파이'),ki=head.indexOf('구분');
+    var ni=head.indexOf('이름'),pi=head.indexOf('사진'),si=head.indexOf('스포티파이'),ki=head.indexOf('구분'),mi=head.indexOf('메일');
     var heads=[],artists=[];
     rows.forEach(function(r){
       var name=(r[ni]||'').trim(); if(!name) return;
-      var a={name:name,pic:photoUrl(r[pi]),sp:(r[si]||'').trim()};
+      var a={name:name,pic:photoUrl(r[pi]),sp:(r[si]||'').trim(),mail:mi<0?'':(r[mi]||'').trim()};
       var kind=ki<0?'':(r[ki]||'').replace(/\s/g,'').toLowerCase();
       (kind==='headproducer'?heads:artists).push(a);
     });

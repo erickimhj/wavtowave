@@ -26,6 +26,9 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 @media (max-width:520px){.head .card{text-align:center}.head .info{align-items:center}}
 .btn{padding:9px 16px;border-radius:999px;border:1px solid #2c2c33;color:#e8e8ea;font-size:13px;text-decoration:none;white-space:nowrap}
 .btn:hover{background:#222227}
+.sp{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:10px;color:#e8e8ea;font-size:13px;text-decoration:none;opacity:.85;transition:opacity .2s}
+.sp:hover{opacity:1}
+.sp img{width:26px;height:26px;display:block}
 .msg{color:#8a8a93;padding:20px 0}
 </style>
 </head>
@@ -59,7 +62,7 @@ function card(a,isHead){
   var img=a.pic?'<img class="photo" src="'+esc(a.pic)+'" alt="'+esc(a.name)+'" loading="lazy">'
                :'<div class="photo" aria-hidden="true">'+esc(a.name.charAt(0).toUpperCase())+'</div>';
   var btn=/^https:\/\/open\.spotify\.com\//.test(a.sp)
-    ?'<a class="btn" href="'+esc(a.sp)+'" target="_blank" rel="noopener">spotify</a>':'';
+    ?'<a class="sp" href="'+esc(a.sp)+'" target="_blank" rel="noopener" aria-label="'+esc(a.name)+' Spotify"><img src="spotify.png" alt="Spotify" onerror="this.replaceWith(document.createTextNode(\'spotify\'))"></a>':'';
   var body='<div class="name">'+esc(a.name)+'</div>'+btn;
   return '<div class="card">'+img+(isHead?'<div class="info">'+body+'</div>':body)+'</div>';
 }

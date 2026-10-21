@@ -16,20 +16,23 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 .home:hover{color:#FFFFFF}
 .sub{color:#8a8a93;margin:0 0 28px}
 /* 카드 개수와 상관없이 항상 가운데 정렬 */
-.list{display:flex;flex-wrap:wrap;justify-content:center;gap:14px}
-.card{width:220px;border:1px solid #232329;border-radius:12px;padding:20px 16px 18px;background:#151518;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
-.cover{width:180px;height:180px;border-radius:6px;object-fit:cover;background:#222227;display:flex;align-items:center;justify-content:center;font-size:48px;color:#8a8a93}
-a.coverlink{display:block;border-radius:6px}
+:root{--cover:360px}
+.list{display:flex;flex-direction:column;align-items:center;gap:20px}
+.card{width:min(100%,calc(var(--cover) + 40px));border:1px solid #232329;border-radius:12px;padding:20px 20px 18px;background:#151518;display:flex;flex-direction:column;align-items:center;text-align:center;gap:12px}
+.cover{width:100%;height:auto;aspect-ratio:1/1;border-radius:6px;object-fit:cover;background:#222227;display:flex;align-items:center;justify-content:center;font-size:48px;color:#8a8a93}
+a.coverlink{display:block;width:100%;border-radius:6px}
 a.coverlink .cover{transition:opacity .2s}
 a.coverlink:hover .cover{opacity:.8}
 a.coverlink:focus-visible{outline:1px solid #e8e8ea;outline-offset:4px}
-.title{font-weight:600;font-size:16px;word-break:break-all}
-.artist{font-size:13px;color:#b5b5bd;margin-top:-6px;word-break:break-all}
+.title{font-weight:600;font-size:18px;word-break:break-all}
+.artist{font-size:14px;color:#b5b5bd;margin-top:-6px;word-break:break-all}
 .sp{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:10px;color:#e8e8ea;font-size:13px;text-decoration:none;opacity:.85;transition:opacity .2s}
 .sp:hover{opacity:1}
 .sp img{width:26px;height:26px;display:block}
+.links{display:flex;align-items:center;justify-content:center;gap:10px}
+.mv{display:inline-flex;align-items:center;justify-content:center;height:36px;line-height:1;padding:0 16px;border:1px solid #2c2c33;border-radius:999px;color:#e8e8ea;font-size:13px;font-weight:600;text-decoration:none}
+.mv:hover{background:#222227}
 .msg{color:#8a8a93;padding:20px 0;text-align:center;width:100%}
-@media (max-width:480px){.card{width:calc(50% - 7px);padding:16px 10px}.cover{width:100%;height:auto;aspect-ratio:1/1}}
 </style>
 </head>
 <body>
@@ -49,7 +52,7 @@ function esc(s){return s.replace(/[&<>"']/g,function(c){return{'&':'&amp;','<':'
 function photoUrl(u){
   u=(u||'').trim(); if(!u) return '';
   var m=u.match(/drive\.google\.com\/.*(?:\/d\/|[?&]id=)([\w-]+)/);
-  return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w400':u;
+  return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w1000':u;
 }
 function show(html){document.getElementById('list').innerHTML=html}
 // 지난번에 받아둔 목록을 먼저 바로 보여주고, 그사이 최신 목록을 받아와 바뀐 게 있으면 교체
@@ -60,12 +63,16 @@ if(t!==c){try{localStorage.setItem(key,t)}catch(e){}load(t)}}).catch(function(){
 
 function card(r){
   var sp=/^https:\/\/open\.spotify\.com\//.test(r.sp)?r.sp:'';
+  var mv=/^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.test(r.mv)?r.mv:'';
   var cover=r.cover?'<img class="cover" src="'+esc(r.cover)+'" alt="'+esc(r.title)+' 앨범 커버" loading="lazy">'
                    :'<span class="cover" aria-hidden="true">'+esc(r.title.charAt(0).toUpperCase())+'</span>';
   if(sp) cover='<a class="coverlink" href="'+esc(sp)+'" target="_blank" rel="noopener">'+cover+'</a>';
   return '<div class="card">'+cover+'<div class="title">'+esc(r.title)+'</div>'
     +(r.artist?'<div class="artist">'+esc(r.artist)+'</div>':'')
-    +(sp?'<a class="sp" href="'+esc(sp)+'" target="_blank" rel="noopener" aria-label="'+esc(r.title)+' Spotify"><img src="spotify.png" alt="Spotify" onerror="this.replaceWith(document.createTextNode(\'spotify\'))"></a>':'')
+    +((sp||mv)?'<div class="links">'
+      +(sp?'<a class="sp" href="'+esc(sp)+'" target="_blank" rel="noopener" aria-label="'+esc(r.title)+' Spotify"><img src="spotify.png" alt="Spotify" onerror="this.replaceWith(document.createTextNode(\'spotify\'))"></a>':'')
+      +(mv?'<a class="mv" href="'+esc(mv)+'" target="_blank" rel="noopener" aria-label="'+esc(r.title)+' 뮤직비디오">MV</a>':'')
+      +'</div>':'')
     +'</div>';
 }
 
@@ -75,11 +82,11 @@ if(!RELEASE_GID){
   cached('wtw_release',BASE+RELEASE_GID,function(txt){
     var rows=parseCSV(txt.replace(/^﻿/,''));
     var head=rows.shift().map(function(s){return s.trim()});
-    var ci=head.indexOf('커버'),ti=head.indexOf('제목'),ai=head.indexOf('아티스트'),si=head.indexOf('스포티파이');
+    var ci=head.indexOf('커버'),ti=head.indexOf('제목'),ai=head.indexOf('아티스트'),si=head.indexOf('스포티파이'),mi=head.map(function(h){return h.toUpperCase()}).indexOf('MV');
     var list=[];
     rows.forEach(function(r){
       var title=(r[ti]||'').trim(); if(!title) return;
-      list.push({title:title,cover:photoUrl(r[ci]),artist:ai<0?'':(r[ai]||'').trim(),sp:si<0?'':(r[si]||'').trim()});
+      list.push({title:title,cover:photoUrl(r[ci]),artist:ai<0?'':(r[ai]||'').trim(),sp:si<0?'':(r[si]||'').trim(),mv:mi<0?'':(r[mi]||'').trim()});
     });
     show(list.length?list.map(card).join(''):'<p class="msg">아직 등록된 앨범이 없습니다.</p>');
   },function(){show('<p class="msg">목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>')});

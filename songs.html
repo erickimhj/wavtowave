@@ -19,6 +19,7 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 .track{border:1px solid #232329;border-radius:12px;padding:14px 16px;margin-bottom:10px;background:#151518}
 .row{display:flex;align-items:center;gap:10px}
 .name{flex:1;font-weight:600;word-break:break-all}
+.artist{font-size:13px;color:#b5b5bd;margin-top:3px;font-weight:400}
 .genre{font-size:11px;color:#8a8a93;margin-top:2px;font-weight:400}
 .btn{padding:8px 12px;border-radius:8px;border:1px solid #2c2c33;background:none;color:#e8e8ea;font-size:13px;cursor:pointer;text-decoration:none;white-space:nowrap}
 .btn:hover{background:#222227}
@@ -54,16 +55,16 @@ genres.forEach(function(g){h+='<a class="tab'+(g==cur?' on':'')+'" href="#'+enco
 document.getElementById('tabs').innerHTML=h;
 var list=tracks.filter(function(t){return !cur||t.g==cur});
 if(!list.length){document.getElementById('list').innerHTML='<p class="msg">아직 등록된 곡이 없습니다.</p>';return}
-document.getElementById('list').innerHTML=list.map(function(t){return '<div class="track"><div class="row"><div class="name">'+esc(t.title)+'<div class="genre">'+esc(t.g.toUpperCase())+'</div></div><button class="btn" data-id="'+t.id+'">play</button><a class="btn" href="https://drive.google.com/uc?export=download&id='+t.id+'">download</a></div><div class="player"></div></div>'}).join('')}
+document.getElementById('list').innerHTML=list.map(function(t){return '<div class="track"><div class="row"><div class="name">'+esc(t.title)+(t.artist?'<div class="artist">'+esc(t.artist)+'</div>':'')+'<div class="genre">'+esc(t.g.toUpperCase())+'</div></div><button class="btn" data-id="'+t.id+'">play</button><a class="btn" href="https://drive.google.com/uc?export=download&id='+t.id+'">download</a></div><div class="player"></div></div>'}).join('')}
 document.addEventListener('click',function(e){var b=e.target.closest('button[data-id]');if(!b)return;var p=b.closest('.track').querySelector('.player');
 if(p.style.display=='block'){p.style.display='none';p.innerHTML='';b.textContent='play';return}
 p.innerHTML='<iframe src="https://drive.google.com/file/d/'+b.dataset.id+'/preview" allow="autoplay"></iframe>';p.style.display='block';b.textContent='close'});
 window.addEventListener('hashchange',render);
 fetch(SHEET+'&t='+Date.now()).then(function(r){return r.text()}).then(function(txt){
 var rows=parseCSV(txt.replace(/^﻿/,''));var head=rows.shift().map(function(s){return s.trim()});
-var gi=head.indexOf('장르'),ti=head.indexOf('제목'),li=head.indexOf('링크');
+var gi=head.indexOf('장르'),ti=head.indexOf('제목'),li=head.indexOf('링크'),ai=head.indexOf('아티스트');
 rows.forEach(function(r){var id=fileId(r[li]||'');var title=(r[ti]||'').trim();var g=((r[gi]||'').trim()||'기타').toLowerCase();
-if(!id||!title)return;tracks.push({g:g,title:title,id:id});if(genres.indexOf(g)<0)genres.push(g)});
+if(!id||!title)return;tracks.push({g:g,title:title,id:id,artist:ai<0?'':(r[ai]||'').trim()});if(genres.indexOf(g)<0)genres.push(g)});
 render()}).catch(function(){document.getElementById('list').innerHTML='<p class="msg">곡 목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>'});
 </script>
 </body>

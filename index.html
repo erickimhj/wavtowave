@@ -33,11 +33,11 @@ body{
   letter-spacing:-0.01em;line-height:1;
   color:#D8D2C4;background:none;border:0;cursor:pointer;
   padding:24px;
-  filter:url(#thin);
   transition:color .4s ease, transform .7s cubic-bezier(.2,.7,.2,1);
 }
 .logo:hover{color:#FFFFFF}
-.logo{view-transition-name:wtw-logo}
+/* 애니메이션 때 글자 크기에 딱 맞는 상자로 이동시켜 잔상이 생기지 않게 함 */
+.logo .lt{display:inline-block;filter:url(#thin);view-transition-name:wtw-logo}
 /* 페이지 이동 시 로고가 자연스럽게 이어지는 애니메이션 (지원하는 브라우저에서만, 나머지는 기존처럼 바로 이동) */
 @view-transition{navigation:auto}
 ::view-transition-group(wtw-logo){animation-duration:.7s;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
@@ -69,7 +69,7 @@ body.open .menu{max-height:200px;opacity:1;margin-top:8px}
 </svg>
 
 <div class="stage">
-  <button class="logo" type="button" aria-expanded="false" aria-controls="menu">wavtowave</button>
+  <button class="logo" type="button" aria-expanded="false" aria-controls="menu"><span class="lt">wavtowave</span></button>
   <nav class="menu" id="menu" aria-label="메뉴">
     <a href="artists.html" tabindex="-1">ARTISTS</a>
     <a href="release.html" tabindex="-1">NEW RELEASE</a>

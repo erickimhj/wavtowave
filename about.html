@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>wav to wave - About</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Display&family=Libre+Caslon+Text&family=Hahmlet:wght@300&display=swap">
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#0e0e10;color:#e8e8ea;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif}
+.wrap{max-width:880px;margin:0 auto;padding:48px 16px 64px}
+h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40px;letter-spacing:-0.01em;line-height:1;color:#D8D2C4;margin:0 0 10px;filter:url(#thin)}
+.home{color:inherit;text-decoration:none;transition:color .3s}
+.home:hover{color:#FFFFFF}
+.sub{color:#8a8a93;margin:0 0 28px}
+.ab{max-width:560px;margin-top:40px;font-size:16px;line-height:2;color:#cfcac0}
+/* KOR / ENG 전환 버튼 */
+.lang{display:flex;gap:8px;align-items:center;margin-bottom:18px;color:#4a4a52;font-size:12px;font-weight:600;letter-spacing:.14em}
+.lang button{background:none;border:0;padding:8px 2px;color:#6a6a73;font:inherit;letter-spacing:inherit;cursor:pointer;transition:color .2s}
+.lang button:hover{color:#b5b5bd}
+.lang button.on{color:#e8e8ea}
+.lang button:focus-visible{outline:1px solid #e8e8ea;outline-offset:2px}
+.ab h2{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:34px;line-height:1;color:#D8D2C4;margin:0 0 28px;filter:url(#thin)}
+.ab p{margin:0 0 18px;text-wrap:pretty}
+.ko{font-family:'Hahmlet','Apple SD Gothic Neo',serif;font-weight:300;word-break:keep-all}
+.en{font-family:'Libre Caslon Text',Georgia,serif;font-size:17px}
+.ig{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:28px 0 0 -11px;color:#e8e8ea;opacity:.8;transition:opacity .2s}
+.ig:hover{opacity:1}
+.ig svg{width:22px;height:22px;display:block}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><filter id="thin" x="-5%" y="-20%" width="110%" height="140%"><feMorphology operator="erode" radius="0.4"></feMorphology></filter></svg>
+<div class="wrap">
+<h1><a class="home" href="./" aria-label="wavtowave 첫 화면으로">wavtowave</a></h1>
+<p class="sub">About</p>
+<div class="ab">
+  <div class="lang" role="group" aria-label="언어 선택">
+    <button type="button" class="on" data-l="ko" aria-pressed="true">KOR</button><span aria-hidden="true">/</span><button type="button" data-l="en" aria-pressed="false">ENG</button>
+  </div>
+
+  <!-- 한국어 소개 (문구를 바꾸려면 <p> 안의 글만 고치면 됩니다) -->
+  <div class="ko" id="ko" lang="ko">
+    <h2>wavtowave</h2>
+    <p>나비의 작은 날갯짓이 거대한 파동을 일으키듯, 우리의 작은 음원 하나로 세상에 새로운 흐름을 만들어갑니다.</p>
+    <p>무언가를 좇기보다 아티스트 각자가 지닌 고유한 색과 가능성에 집중합니다. 서로 다른 개성과 음악이 모여 하나의 흐름을 이루고, 그 흐름이 새로운 방향이 되는 곳.</p>
+    <p>wavtowave는 아티스트의 다양성으로 새로운 음악의 파동을 만들어가는 레이블입니다.</p>
+  </div>
+
+  <!-- 영어 소개 -->
+  <div class="en" id="en" lang="en" hidden>
+    <h2>wavtowave</h2>
+    <p>Every wave begins somewhere. For us, it begins with a sound — a single track with the potential to move beyond itself and create something greater.</p>
+    <p>Rather than chasing trends, we embrace the distinct identities and creative possibilities of each artist. By bringing together different perspectives and sounds, we create space for new ideas to emerge and new directions to take shape.</p>
+    <p>wavtowave is a label built on individuality, driven by creativity, and united by the waves we create.</p>
+  </div>
+
+  <a class="ig" href="https://www.instagram.com/wavtowave_/" target="_blank" rel="noopener" aria-label="wavtowave 인스타그램">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg>
+  </a>
+</div>
+</div>
+<script>
+// KOR / ENG 버튼을 누르면 해당 언어 소개만 보이게 함
+document.querySelectorAll('.lang button').forEach(function(b){
+  b.addEventListener('click',function(){
+    document.querySelectorAll('.lang button').forEach(function(x){
+      var on=x===b; x.classList.toggle('on',on); x.setAttribute('aria-pressed',on);
+    });
+    document.getElementById('ko').hidden=b.dataset.l!=='ko';
+    document.getElementById('en').hidden=b.dataset.l!=='en';
+  });
+});
+</script>
+</body>
+</html>

@@ -29,6 +29,15 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 .ig{display:inline-flex;align-items:center;justify-content:center;width:44px;height:44px;margin:28px 0 0 -11px;color:#e8e8ea;opacity:.8;transition:opacity .2s}
 .ig:hover{opacity:1}
 .ig svg{width:22px;height:22px;display:block}
+/* 컴퓨터 화면: 왼쪽에 로고, 오른쪽에 소개 글을 두고 화면 세로 가운데에 배치 (휴대폰은 위 설정 그대로) */
+@media (min-width:768px){
+  .wrap{max-width:1100px;min-height:100vh;display:grid;grid-template-columns:300px 1fr;column-gap:80px;align-content:center;padding-bottom:96px}
+  .wrap>h1,.wrap>.sub{grid-column:1}
+  .wrap>.sub{grid-row:2}
+  .ab{grid-column:2;grid-row:1/4;max-width:640px;margin:0;font-size:18px}
+  .en{font-size:19px}
+  .ab h2{font-size:40px}
+}
 </style>
 </head>
 <body>

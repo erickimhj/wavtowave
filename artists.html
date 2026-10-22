@@ -51,8 +51,8 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 .home{display:inline-block;filter:url(#thin);view-transition-name:wtw-logo}
 /* 페이지 이동 시 로고가 자연스럽게 이어지는 애니메이션 (지원하는 브라우저에서만, 나머지는 기존처럼 바로 이동) */
 @view-transition{navigation:auto}
-::view-transition-group(wtw-logo){animation-duration:.7s;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
-::view-transition-old(root),::view-transition-new(root){animation-duration:.45s}
+::view-transition-group(wtw-logo){animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
+::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 @media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
 </style>
 </head>

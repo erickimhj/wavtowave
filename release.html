@@ -55,6 +55,8 @@ a.coverlink:focus-visible{outline:1px solid #e8e8ea;outline-offset:4px}
 .mv{display:inline-flex;align-items:center;justify-content:center;height:36px;line-height:1;padding:0 16px;border:1px solid #2c2c33;border-radius:999px;color:#e8e8ea;font-size:13px;font-weight:600;text-decoration:none}
 .mv:hover{background:#222227}
 .msg{color:#8a8a93;padding:20px 0;text-align:center;width:100%}
+/* 하단 저작권 표시 */
+.ft{max-width:880px;margin:0 auto;padding:0 16px 32px;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:11px;letter-spacing:.14em;color:#4a4a52}
 </style>
 </head>
 <body>
@@ -87,7 +89,7 @@ if(t!==c){try{localStorage.setItem(key,t)}catch(e){}load(t)}}).catch(function(){
 function card(r){
   var sp=/^https:\/\/open\.spotify\.com\//.test(r.sp)?r.sp:'';
   var mv=/^https:\/\/(www\.|m\.)?(youtube\.com|youtu\.be)\//.test(r.mv)?r.mv:'';
-  var cover=r.cover?'<img class="cover" src="'+esc(r.cover)+'" alt="'+esc(r.title)+' 앨범 커버" loading="lazy">'
+  var cover=r.cover?'<img class="cover" src="'+esc(r.cover)+'" alt="'+esc(r.title)+' 앨범 커버">'
                    :'<span class="cover" aria-hidden="true">'+esc(r.title.charAt(0).toUpperCase())+'</span>';
   if(sp) cover='<a class="coverlink" href="'+esc(sp)+'" target="_blank" rel="noopener">'+cover+'</a>';
   return '<div class="card">'+cover+'<div class="title">'+esc(r.title)+'</div>'
@@ -115,5 +117,6 @@ if(!RELEASE_GID){
   },function(){show('<p class="msg">목록을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.</p>')});
 }
 </script>
+<footer class="ft">© 2026 wavtowave</footer>
 </body>
 </html>

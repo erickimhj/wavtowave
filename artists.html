@@ -60,6 +60,8 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 ::view-transition-group(wtw-logo){animation-duration:.45s;animation-timing-function:cubic-bezier(.2,.7,.2,1)}
 ::view-transition-old(root),::view-transition-new(root){animation-duration:.3s}
 @media (prefers-reduced-motion:reduce){::view-transition-group(*),::view-transition-old(*),::view-transition-new(*){animation:none!important}}
+/* 하단 저작권 표시 */
+.ft{max-width:880px;margin:0 auto;padding:0 16px 32px;font-family:-apple-system,BlinkMacSystemFont,"Apple SD Gothic Neo","Noto Sans KR",sans-serif;font-size:11px;letter-spacing:.14em;color:#4a4a52}
 </style>
 </head>
 <body>
@@ -90,7 +92,7 @@ function photoUrl(u){
   return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w320':u;
 }
 function card(a,isHead){
-  var img=a.pic?'<img class="photo" src="'+esc(a.pic)+'" alt="'+esc(a.name)+'" loading="lazy">'
+  var img=a.pic?'<img class="photo" src="'+esc(a.pic)+'" alt="'+esc(a.name)+'">'
                :'<span class="photo" aria-hidden="true">'+esc(a.name.charAt(0).toUpperCase())+'</span>';
   var btn=/^https:\/\/open\.spotify\.com\//.test(a.sp)
     ?'<a class="sp" href="'+esc(a.sp)+'" target="_blank" rel="noopener" aria-label="'+esc(a.name)+' Spotify"><img src="spotify.png" alt="Spotify" onerror="this.replaceWith(document.createTextNode(\'spotify\'))"></a>':'';
@@ -149,5 +151,6 @@ if(!ARTIST_SHEET){
   window.addEventListener('resize',fitCards);
 }
 </script>
+<footer class="ft">© 2026 wavtowave</footer>
 </body>
 </html>

@@ -31,6 +31,10 @@ h1{font-family:'Libre Caslon Display',Georgia,serif;font-weight:400;font-size:40
 .sp{display:inline-flex;align-items:center;justify-content:center;min-width:44px;min-height:44px;padding:10px;color:#e8e8ea;font-size:13px;text-decoration:none;opacity:.85;transition:opacity .2s}
 .sp:hover{opacity:1}
 .sp img{width:26px;height:26px;display:block}
+.sp svg{width:24px;height:24px;display:block}
+.links{display:flex;align-items:center;justify-content:center;gap:2px}
+.head .links{justify-content:flex-start}
+@media (max-width:520px){.head .links{justify-content:center}}
 .msg{color:#8a8a93;padding:20px 0}
 .home{color:inherit;text-decoration:none;transition:color .3s}
 .home:hover{color:#FFFFFF}
@@ -67,8 +71,10 @@ function card(a,isHead){
                :'<span class="photo" aria-hidden="true">'+esc(a.name.charAt(0).toUpperCase())+'</span>';
   var btn=/^https:\/\/open\.spotify\.com\//.test(a.sp)
     ?'<a class="sp" href="'+esc(a.sp)+'" target="_blank" rel="noopener" aria-label="'+esc(a.name)+' Spotify"><img src="spotify.png" alt="Spotify" onerror="this.replaceWith(document.createTextNode(\'spotify\'))"></a>':'';
+  var ig=a.ig?'<a class="sp" href="'+esc(a.ig)+'" target="_blank" rel="noopener" aria-label="'+esc(a.name)+' Instagram"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><rect x="3" y="3" width="18" height="18" rx="5"/><circle cx="12" cy="12" r="4.2"/><circle cx="17.3" cy="6.7" r="1" fill="currentColor" stroke="none"/></svg></a>':'';
+  var links=(btn||ig)?'<div class="links">'+btn+ig+'</div>':'';
   var mail=/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(a.mail)?'<a class="mail" href="mailto:'+esc(a.mail)+'">'+esc(a.mail)+'</a>':'';
-  var body='<div class="name">'+esc(a.name)+'</div>'+btn+mail;
+  var body='<div class="name">'+esc(a.name)+'</div>'+links+mail;
   return '<div class="card">'+img+(isHead?'<div class="info">'+body+'</div>':body)+'</div>';
 }
 // 가장 긴 메일 주소가 한 줄에 들어가는 만큼만 카드 최소 너비를 늘림 (화면보다 넓어지지는 않음)
@@ -81,6 +87,13 @@ function fitCards(){
   probe.remove();
   var min=Math.min(Math.max(180,Math.ceil(w)+36),grid.clientWidth);
   grid.style.gridTemplateColumns='repeat(auto-fill,minmax('+min+'px,1fr))';
+}
+// 인스타 칸에 전체 주소 또는 아이디(@아이디)를 적으면 인스타 주소로 바꿈
+function igUrl(u){
+  u=(u||'').trim(); if(!u) return '';
+  if(/^https?:\/\/(www\.)?instagram\.com\//i.test(u)) return u.replace(/^http:/i,'https:');
+  u=u.replace(/^@/,'');
+  return /^[\w.]+$/.test(u)?'https://www.instagram.com/'+u+'/':'';
 }
 function show(html){document.getElementById('list').innerHTML=html}
 
@@ -95,11 +108,11 @@ if(!ARTIST_SHEET){
   cached('wtw_artists',ARTIST_SHEET,function(txt){
     var rows=parseCSV(txt.replace(/^﻿/,''));
     var head=rows.shift().map(function(s){return s.trim()});
-    var ni=head.indexOf('이름'),pi=head.indexOf('사진'),si=head.indexOf('스포티파이'),ki=head.indexOf('구분'),mi=head.indexOf('메일');
+    var ni=head.indexOf('이름'),pi=head.indexOf('사진'),si=head.indexOf('스포티파이'),ki=head.indexOf('구분'),mi=head.indexOf('메일'),gi=head.indexOf('인스타');
     var heads=[],artists=[];
     rows.forEach(function(r){
       var name=(r[ni]||'').trim(); if(!name) return;
-      var a={name:name,pic:photoUrl(r[pi]),sp:(r[si]||'').trim(),mail:mi<0?'':(r[mi]||'').trim()};
+      var a={name:name,pic:photoUrl(r[pi]),sp:(r[si]||'').trim(),mail:mi<0?'':(r[mi]||'').trim(),ig:gi<0?'':igUrl(r[gi])};
       var kind=ki<0?'':(r[ki]||'').replace(/\s/g,'').toLowerCase();
       (kind==='headproducer'?heads:artists).push(a);
     });
